@@ -1,7 +1,16 @@
 import cv2
 from matplotlib import pyplot as plt
 import numpy as np
-from Tkinter import Tk, Label, Button
+from Tkinter import *
+import tkFileDialog
+
+global GUIGreenVal
+GUIGreenVal = 255 
+global GUIRedVal
+GUIRedVal = 255
+global GUIBlueVal
+GUIBlueVal = 255
+global img
 
 img = cv2.imread('E:/My Photoes/RMORA@TRICO/2015-12-19-12-26-26-528.jpg',cv2.IMREAD_UNCHANGED)
 cv2.namedWindow("image",cv2.WINDOW_NORMAL)  
@@ -9,11 +18,17 @@ cv2.imshow('image',img)
 def nothing():
     pass
 
-def ColorTemp(*void):
-    valueG = cv2.getTrackbarPos('Green','image') 
-    valueR = cv2.getTrackbarPos('Red','image') 
-    valueB = cv2.getTrackbarPos('Blue','image') 
-    
+def ColorChange():
+    #valueG = cv2.getTrackbarPos('Green','image') 
+    #valueR = cv2.getTrackbarPos('Red','image') 
+    #valueB = cv2.getTrackbarPos('Blue','image') 
+    global GUIGreenVal 
+    global GUIRedVal
+    global GUIBlueVal
+    valueG = GUIGreenVal 
+    valueR = GUIRedVal
+    valueB = GUIBlueVal
+    print(valueG)
     B,G,R = cv2.split(img)
     
     if(valueG>255):
@@ -56,8 +71,8 @@ def ColorTemp(*void):
     pass
 
 
-def Sharpen(*void):
-    value = cv2.getTrackbarPos('Sharpeing','image')
+def Sharpen(value):
+    #value = cv2.getTrackbarPos('Sharpeing','image')
     kernel = value
     if(kernel%2==1):
         kernel = kernel
@@ -67,8 +82,8 @@ def Sharpen(*void):
     unsharp_image = cv2.addWeighted(img, 1.5, blur, -0.5, 0)
     cv2.imshow('image',unsharp_image) 
 
-def Noise(*void):  
-    r = cv2.getTrackbarPos('Noise','image')
+def Noise(r):  
+    #= cv2.getTrackbarPos('Noise','image')
     k=3*r
     if(k%2==1):
         k=k
@@ -87,17 +102,40 @@ def colorHist():
     plt.show()
     
 class MyFirstGUI:
+    
     def __init__(self,master):
         self.master = master
-        master.title("A simple GUI")
-
+        master.title("PhotoEditter")
+        
+        menubar = Menu(master)
+        master.config(menu=menubar)
+        
+        fileMenu = Menu(menubar)
+        fileMenu.add_command(label="Open", command=self.FileOpen)
+        menubar.add_cascade(label="File", menu=fileMenu)
+        
+        NoiseSlider = Scale(master, from_=0, to=100, orient=HORIZONTAL,command=self.GUINoise,label="Noise",length=250)
+        NoiseSlider.pack(fill=X)
+        
+        SharpenSlider = Scale(master, from_=0, to=100, orient=HORIZONTAL,command=self.GUISharpen,label="Sharpen",length=250)
+        SharpenSlider.pack(fill=X)
+        
+        SliderGreen = Scale(master, from_=0, to=511, orient=HORIZONTAL,command=self.GUIGreen,label="Green",length=250)
+        SliderGreen.pack(fill=X)
+        SliderGreen.set(255)
+        
+        SliderRed = Scale(master, from_=0, to=511, orient=HORIZONTAL,command=self.GUIRed,label="Red",length=250)
+        SliderRed.pack(fill=X)
+        SliderRed.set(255)
+        
+        SliderBlue = Scale(master, from_=0, to=511, orient=HORIZONTAL,command=self.GUIBlue,label="Blue",length=250)
+        SliderBlue.pack(fill=X)
+        SliderBlue.set(255)
+        
         self.label = Label(master, text="This is our first GUI!")
         self.label.pack()
 
         self.greet_button = Button(master, text="Greet", command=self.greet)
-        self.greet_button.pack()
-        
-        self.greet_button = Button(master, text="ColorTemp", command=self.ColorT)
         self.greet_button.pack()
 
         self.close_button = Button(master, text="Close", command=master.quit)
@@ -105,17 +143,48 @@ class MyFirstGUI:
         
     def greet(self):
         colorHist()
+    
+    def GUINoise(self,val):
+        Noise(int(val))
         
-    def ColorT(self):
-        ColorTemp()
+    def GUISharpen(self,val):
+        Sharpen(int(val))
+        
+    def GUIGreen(self,val):
+        global GUIGreenVal 
+        GUIGreenVal = int(val)
+        ColorChange()
+        
+    def GUIRed(self,val):
+        global GUIRedVal
+        GUIRedVal = int(val)
+        ColorChange()
+        
+    def GUIBlue(self,val):
+        global GUIBlueVal
+        GUIBlueVal = int(val)
+        ColorChange()
+    
+    def FileOpen(self):
+        FILEOPENOPTIONS = dict(defaultextension='.jpg',filetypes=[('jpg','*.jpg')])
+        file_path = tkFileDialog.askopenfilename(**FILEOPENOPTIONS)
+        print(file_path)
+        global img
+        img = cv2.imread(file_path,cv2.IMREAD_UNCHANGED)
+        cv2.imshow('image',img)  
+        print(file_path)
+        
+    
+        
+        
         
         
 
-cv2.createTrackbar("Noise","image",0,100,Noise)
-cv2.createTrackbar("Sharpeing","image",0,100,Sharpen) 
-cv2.createTrackbar("Green","image",255,511,ColorTemp) 
-cv2.createTrackbar("Red","image",255,511,ColorTemp) 
-cv2.createTrackbar("Blue","image",255,511,ColorTemp) 
+#cv2.createTrackbar("Noise","image",0,100,Noise)
+#cv2.createTrackbar("Sharpeing","image",0,100,Sharpen) 
+#cv2.createTrackbar("Green","image",255,511,ColorTemp) 
+#cv2.createTrackbar("Red","image",255,511,ColorTemp) 
+#cv2.createTrackbar("Blue","image",255,511,ColorTemp) 
 
 root = Tk()
 my_gui = MyFirstGUI(root)
