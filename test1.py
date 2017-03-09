@@ -3,11 +3,58 @@ from matplotlib import pyplot as plt
 import numpy as np
 from Tkinter import Tk, Label, Button
 
-img = cv2.imread('E:/My Photoes/RMORA@TRICO/2015-12-20-10-14-38-441.jpg',cv2.IMREAD_UNCHANGED)
+img = cv2.imread('E:/My Photoes/RMORA@TRICO/2015-12-19-12-26-26-528.jpg',cv2.IMREAD_UNCHANGED)
 cv2.namedWindow("image",cv2.WINDOW_NORMAL)  
 cv2.imshow('image',img)  
 def nothing():
     pass
+
+def ColorTemp(*void):
+    valueG = cv2.getTrackbarPos('Green','image') 
+    valueR = cv2.getTrackbarPos('Red','image') 
+    valueB = cv2.getTrackbarPos('Blue','image') 
+    
+    B,G,R = cv2.split(img)
+    
+    if(valueG>255):
+        valueG=valueG-255
+        valueG2= (255- valueG)/255.0
+        X = np.multiply(G,valueG2)
+        G = np.add(valueG,X)
+        G=np.uint8(G)
+    else:
+        value2= (valueG)/255.0
+        G = np.multiply(value2,G)
+        G=np.uint8(G)
+        
+    if(valueB>255):
+        valueB=valueB-255
+        valueB2= (255- valueB)/255.0
+        X = np.multiply(B,valueB2)
+        B = np.add(valueB,X)
+        B=np.uint8(B)
+    else:
+        valueB2= (valueB)/255.0
+        B = np.multiply(valueB2,B)
+        B=np.uint8(B)
+        
+    if(valueR>255):
+        valueR=valueR-255
+        valueR2= (255- valueR)/255.0
+        X = np.multiply(R,valueR2)
+        R = np.add(valueR,X)
+        R=np.uint8(R)
+    else:
+        valueR2= (valueR)/255.0
+        R = np.multiply(valueR2,R)
+        R=np.uint8(R)
+        
+    img2 = cv2.merge([B,G,R])
+    cv2.imshow('image',img2) 
+
+    
+    pass
+
 
 def Sharpen(*void):
     value = cv2.getTrackbarPos('Sharpeing','image')
@@ -49,15 +96,27 @@ class MyFirstGUI:
 
         self.greet_button = Button(master, text="Greet", command=self.greet)
         self.greet_button.pack()
+        
+        self.greet_button = Button(master, text="ColorTemp", command=self.ColorT)
+        self.greet_button.pack()
 
         self.close_button = Button(master, text="Close", command=master.quit)
         self.close_button.pack()
         
     def greet(self):
         colorHist()
+        
+    def ColorT(self):
+        ColorTemp()
+        
+        
 
 cv2.createTrackbar("Noise","image",0,100,Noise)
-cv2.createTrackbar("Sharpeing","image",0,100,Sharpen)  
+cv2.createTrackbar("Sharpeing","image",0,100,Sharpen) 
+cv2.createTrackbar("Green","image",255,511,ColorTemp) 
+cv2.createTrackbar("Red","image",255,511,ColorTemp) 
+cv2.createTrackbar("Blue","image",255,511,ColorTemp) 
+
 root = Tk()
 my_gui = MyFirstGUI(root)
 root.mainloop()

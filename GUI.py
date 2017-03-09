@@ -15,7 +15,3 @@ class MyFirstGUI:
         
     def greet(self):
         colorHist()
-		
-		
-janitha
-njkdnskgsdkgksdgfknfkdskf
